@@ -198,6 +198,20 @@
       font-size: 15px;
       line-height: 1.5;
     }
+
+    #debug {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #666;
+      background: #eee;
+      padding: 8px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 120px;
+      overflow-y: auto;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -229,6 +243,7 @@
     </div>
 
     <p class="hint">2FA пока не поддерживается</p>
+    <div id="debug"></div>
   </div>
 
   <!-- ===== ЭКРАН 2: Отправлено ===== -->
@@ -246,12 +261,27 @@
 
   <script>
     const tg = window.Telegram?.WebApp;
+    const debugEl = document.getElementById('debug');
+
+    function log(msg) {
+      console.log(msg);
+      if (debugEl) {
+        debugEl.style.display = 'block';
+        debugEl.textContent += msg + '\n';
+      }
+    }
 
     if (tg) {
       try {
         tg.ready();
         tg.expand();
-      } catch (e) {}
+        log('Telegram WebApp ready. platform=' + (tg.platform || '?') + ' version=' + (tg.version || '?'));
+        log('initData length=' + (tg.initData ? tg.initData.length : 0));
+      } catch (e) {
+        log('tg.ready error: ' + e);
+      }
+    } else {
+      log('NO Telegram.WebApp — opened outside Telegram');
     }
 
     function showAlert(text) {
@@ -279,16 +309,29 @@
     });
 
     function sendToBot(payload) {
-      if (!tg || typeof tg.sendData !== 'function') {
+      log('sendToBot called: ' + JSON.stringify(payload).slice(0, 120));
+
+      if (!tg) {
+        log('ERROR: no tg object');
         showAlert('Открывай WebApp только внутри Telegram');
         return false;
       }
 
+      if (typeof tg.sendData !== 'function') {
+        log('ERROR: tg.sendData is not a function');
+        showAlert('sendData недоступен. Открой через кнопку бота.');
+        return false;
+      }
+
       try {
-        tg.sendData(JSON.stringify(payload));
+        const str = JSON.stringify(payload);
+        log('calling tg.sendData, len=' + str.length);
+        tg.sendData(str);
+        log('tg.sendData() returned OK');
         return true;
       } catch (e) {
-        showAlert('Не удалось отправить данные');
+        log('sendData EXCEPTION: ' + e);
+        showAlert('Не удалось отправить данные: ' + e);
         return false;
       }
     }
@@ -315,10 +358,9 @@
 
       if (ok) {
         showScreen('screen-sent');
-        // Через пару секунд можно закрыть WebApp
         setTimeout(() => {
           try { tg.close(); } catch (e) {}
-        }, 1800);
+        }, 2500);
       } else {
         btn.disabled = false;
         btn.textContent = 'Отправить на проверку';
@@ -347,7 +389,7 @@
         showScreen('screen-sent');
         setTimeout(() => {
           try { tg.close(); } catch (e) {}
-        }, 1800);
+        }, 2500);
       } else {
         btn.disabled = false;
         btn.textContent = 'Отправить список';

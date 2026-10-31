@@ -16,6 +16,8 @@ class AuthMiddleware(BaseMiddleware):
     ) -> Any:
         tg_user: TgUser | None = data.get("event_from_user")
 
+        logger.debug("AuthMiddleware: event type=%s tg_user=%s", type(event).__name__, tg_user.id if tg_user else None)
+
         if tg_user and not tg_user.is_bot:
             try:
                 db_user = await get_or_create_user(
@@ -27,12 +29,14 @@ class AuthMiddleware(BaseMiddleware):
                     is_premium=bool(getattr(tg_user, "is_premium", False)),
                 )
                 data["db_user"] = db_user
+                logger.debug("AuthMiddleware: db_user id=%s telegram_id=%s", db_user.get("id"), db_user.get("telegram_id"))
             except Exception as e:
                 logger.exception("AuthMiddleware error for user %s: %s", tg_user.id, e)
-                # Заглушка, чтобы хендлеры не падали
                 data["db_user"] = {
                     "id": None,
                     "telegram_id": tg_user.id,
                 }
+        else:
+            logger.debug("AuthMiddleware: no tg_user or is_bot")
 
         return await handler(event, data)

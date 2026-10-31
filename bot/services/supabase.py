@@ -1,6 +1,9 @@
 from typing import Optional, List, Dict, Any
 from supabase import create_client, Client
 from bot.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 SCHEMA = "gmail_checker"
 
@@ -8,6 +11,8 @@ supabase: Client = create_client(
     settings.supabase_url,
     settings.supabase_service_role_key,
 )
+
+logger.info("Supabase client created. URL=%s schema=%s", settings.supabase_url, SCHEMA)
 
 
 async def get_or_create_user(
@@ -18,6 +23,8 @@ async def get_or_create_user(
     language_code: Optional[str] = None,
     is_premium: bool = False,
 ) -> Dict[str, Any]:
+    logger.debug("get_or_create_user telegram_id=%s", telegram_id)
+
     result = (
         supabase.schema(SCHEMA)
         .table("users")
@@ -40,6 +47,7 @@ async def get_or_create_user(
             if v is not None
         }
         if update_data:
+            logger.debug("updating user %s with %s", user["id"], update_data)
             supabase.schema(SCHEMA).table("users").update(update_data).eq(
                 "id", user["id"]
             ).execute()
@@ -54,6 +62,7 @@ async def get_or_create_user(
         "language_code": language_code,
         "is_premium": is_premium,
     }
+    logger.info("creating new user telegram_id=%s", telegram_id)
     result = (
         supabase.schema(SCHEMA)
         .table("users")
@@ -70,6 +79,8 @@ async def create_order(
     status_message: str = "Заказ принят",
     estimated_minutes: Optional[int] = None,
 ) -> Dict[str, Any]:
+    logger.info("create_order START user_id=%s type=%s accounts_count=%s", user_id, order_type, len(accounts))
+
     order_data = {
         "user_id": user_id,
         "type": order_type,
@@ -78,13 +89,22 @@ async def create_order(
         "status_message": status_message,
         "estimated_minutes": estimated_minutes,
     }
-    order_res = (
-        supabase.schema(SCHEMA)
-        .table("orders")
-        .insert(order_data)
-        .execute()
-    )
-    order = order_res.data[0]
+    logger.debug("order_data = %s", order_data)
+
+    try:
+        order_res = (
+            supabase.schema(SCHEMA)
+            .table("orders")
+            .insert(order_data)
+            .execute()
+        )
+        logger.info("orders.insert response data=%s", order_res.data)
+        if not order_res.data:
+            raise RuntimeError(f"orders.insert returned empty data: {order_res}")
+        order = order_res.data[0]
+    except Exception as e:
+        logger.exception("orders.insert FAILED: %s", e)
+        raise
 
     items = [
         {
@@ -95,9 +115,17 @@ async def create_order(
         }
         for acc in accounts
     ]
-    if items:
-        supabase.schema(SCHEMA).table("order_items").insert(items).execute()
 
+    if items:
+        logger.info("inserting %s order_items", len(items))
+        try:
+            items_res = supabase.schema(SCHEMA).table("order_items").insert(items).execute()
+            logger.info("order_items.insert ok, count=%s", len(items_res.data) if items_res.data else 0)
+        except Exception as e:
+            logger.exception("order_items.insert FAILED: %s", e)
+            raise
+
+    logger.info("create_order SUCCESS order_id=%s", order["id"])
     return order
 
 
