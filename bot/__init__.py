@@ -1,0 +1,1 @@
+"""InboxGate Telegram Bot package."""

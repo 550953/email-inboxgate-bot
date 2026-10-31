@@ -1,0 +1,6 @@
+aiogram==3.13.1
+supabase==2.7.4
+python-dotenv==1.0.1
+httpx==0.27.2
+pydantic-settings==2.5.2
+pydantic==2.9.2
