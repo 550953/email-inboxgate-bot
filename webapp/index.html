@@ -14,209 +14,58 @@
       --muted: #8e8e93;
       --input-bg: #f2f2f7;
       --success: #34c759;
-      --warning: #ff9f0a;
       --danger: #ff3b30;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
-      height: 100%;
-      overscroll-behavior: none;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overscroll-behavior: none; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg); color: var(--text);
       padding: calc(16px + var(--safe-top)) 16px calc(24px + var(--safe-bottom));
-      min-height: 100%;
-      overflow-x: hidden;
+      min-height: 100%; overflow-x: hidden;
     }
-
-    .screen {
-      display: none;
-      max-width: 420px;
-      margin: 0 auto;
-      min-height: calc(100vh - var(--safe-top) - var(--safe-bottom) - 40px);
-      flex-direction: column;
-    }
-
-    .screen.active {
-      display: flex;
-    }
-
-    h1 {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      letter-spacing: -0.3px;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 15px;
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
-
-    .tabs {
-      display: flex;
-      background: var(--card);
-      border-radius: 14px;
-      padding: 4px;
-      margin-bottom: 18px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      flex-shrink: 0;
-    }
-
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 12px 8px;
-      border-radius: 11px;
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-
-    .tab.active {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      flex-shrink: 0;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
+    .screen { display: none; max-width: 420px; margin: 0 auto; min-height: calc(100vh - var(--safe-top) - var(--safe-bottom) - 40px); flex-direction: column; }
+    .screen.active { display: flex; }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 20px; line-height: 1.4; }
+    .tabs { display: flex; background: var(--card); border-radius: 14px; padding: 4px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); flex-shrink: 0; }
+    .tab { flex: 1; text-align: center; padding: 12px 8px; border-radius: 11px; font-size: 15px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.2s ease; user-select: none; }
+    .tab.active { background: var(--accent); color: #fff; }
+    .card { background: var(--card); border-radius: 18px; padding: 18px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); flex-shrink: 0; }
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
     input, textarea {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1.5px solid transparent;
-      border-radius: 12px;
-      padding: 14px 15px;
-      color: var(--text);
-      font-size: 16px;
-      margin-bottom: 14px;
-      outline: none;
-      transition: border-color 0.15s, background 0.15s;
-      -webkit-appearance: none;
+      width: 100%; background: var(--input-bg); border: 1.5px solid transparent; border-radius: 12px;
+      padding: 14px 15px; color: var(--text); font-size: 16px; margin-bottom: 14px; outline: none;
+      transition: border-color 0.15s, background 0.15s; -webkit-appearance: none;
     }
-
-    input:focus, textarea:focus {
-      border-color: var(--accent);
-      background: #fff;
-    }
-
-    textarea {
-      min-height: 140px;
-      resize: none;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
+    input:focus, textarea:focus { border-color: var(--accent); background: #fff; }
+    textarea { min-height: 140px; resize: none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; line-height: 1.45; }
     .btn {
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      -webkit-appearance: none;
-      user-select: none;
+      width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 14px;
+      padding: 16px; font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s; -webkit-appearance: none; user-select: none;
     }
-
-    .btn:active {
-      opacity: 0.85;
-      transform: scale(0.985);
-    }
-
-    .btn:disabled {
-      opacity: 0.55;
-      pointer-events: none;
-    }
-
-    .btn.secondary {
-      background: var(--input-bg);
-      color: var(--text);
-      margin-top: 10px;
-    }
-
-    .hint {
-      font-size: 13px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 16px;
-      flex-shrink: 0;
-    }
-
+    .btn:active { opacity: 0.85; transform: scale(0.985); }
+    .btn:disabled { opacity: 0.55; pointer-events: none; }
+    .btn.secondary { background: var(--input-bg); color: var(--text); margin-top: 10px; }
+    .hint { font-size: 13px; color: var(--muted); text-align: center; margin-top: 16px; flex-shrink: 0; }
     .status-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(42, 171, 238, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin: 8px auto 16px;
-      color: var(--accent);
-      flex-shrink: 0;
+      width: 64px; height: 64px; border-radius: 50%; background: rgba(42, 171, 238, 0.12);
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+      margin: 8px auto 16px; color: var(--accent); flex-shrink: 0;
     }
-
-    .center-text {
-      text-align: center;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
+    .center-text { text-align: center; color: var(--muted); font-size: 15px; line-height: 1.5; }
     #debug {
-      margin-top: 12px;
-      font-size: 11px;
-      color: #666;
-      background: #eee;
-      padding: 8px;
-      border-radius: 8px;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 120px;
-      overflow-y: auto;
-      display: none;
+      margin-top: 12px; font-size: 11px; color: #666; background: #eee; padding: 8px;
+      border-radius: 8px; white-space: pre-wrap; word-break: break-all; max-height: 140px;
+      overflow-y: auto; display: none;
     }
   </style>
 </head>
 <body>
 
-  <!-- ===== ЭКРАН 1: Новая проверка ===== -->
   <div id="screen-add" class="screen active">
     <h1>Новая проверка</h1>
     <p class="subtitle">Отправь логин и пароль на проверку</p>
@@ -229,16 +78,14 @@
     <div id="form-single" class="card">
       <label>Login</label>
       <input type="text" id="login" placeholder="username@gmail.com" autocomplete="off" enterkeyhint="next">
-
       <label>Password</label>
       <input type="password" id="password" placeholder="••••••••" enterkeyhint="done">
-
       <button class="btn" id="btn-single">Отправить на проверку</button>
     </div>
 
     <div id="form-list" class="card" style="display:none">
       <label>Список (login:password или login;password)</label>
-      <textarea id="list" placeholder="user1@gmail.com:pass123&#10;user2@gmail.com;qwerty&#10;user3@gmail.com:secret"></textarea>
+      <textarea id="list" placeholder="user1@gmail.com:pass123&#10;user2@gmail.com;qwerty"></textarea>
       <button class="btn" id="btn-list">Отправить список</button>
     </div>
 
@@ -246,11 +93,10 @@
     <div id="debug"></div>
   </div>
 
-  <!-- ===== ЭКРАН 2: Отправлено ===== -->
   <div id="screen-sent" class="screen">
     <div class="status-icon">✓</div>
-    <h1 style="text-align:center">Отправлено</h1>
-    <p class="center-text" style="margin-top:8px">
+    <h1 style="text-align:center" id="sent-title">Отправлено</h1>
+    <p class="center-text" style="margin-top:8px" id="sent-text">
       Данные отправлены боту.<br>
       Сейчас придёт подтверждение с номером заказа.
     </p>
@@ -262,6 +108,9 @@
   <script>
     const tg = window.Telegram?.WebApp;
     const debugEl = document.getElementById('debug');
+
+    // === ВАЖНО: сюда URL твоего бота на Render ===
+    const API_URL = 'https://email-inboxgate-bot-tg.onrender.com/api/create-order';
 
     function log(msg) {
       console.log(msg);
@@ -275,7 +124,7 @@
       try {
         tg.ready();
         tg.expand();
-        log('Telegram WebApp ready. platform=' + (tg.platform || '?') + ' version=' + (tg.version || '?'));
+        log('WebApp ready. platform=' + (tg.platform || '?') + ' version=' + (tg.version || '?'));
         log('initData length=' + (tg.initData ? tg.initData.length : 0));
       } catch (e) {
         log('tg.ready error: ' + e);
@@ -297,7 +146,6 @@
       window.scrollTo(0, 0);
     }
 
-    // Вкладки
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -308,92 +156,86 @@
       });
     });
 
-    function sendToBot(payload) {
-      log('sendToBot called: ' + JSON.stringify(payload).slice(0, 120));
+    async function sendOrder(payload) {
+      log('sendOrder: ' + JSON.stringify(payload).slice(0, 100));
 
-      if (!tg) {
-        log('ERROR: no tg object');
+      if (!tg || !tg.initData) {
+        log('ERROR: no initData');
         showAlert('Открывай WebApp только внутри Telegram');
-        return false;
+        return null;
       }
 
-      if (typeof tg.sendData !== 'function') {
-        log('ERROR: tg.sendData is not a function');
-        showAlert('sendData недоступен. Открой через кнопку бота.');
-        return false;
-      }
+      const body = {
+        initData: tg.initData,
+        ...payload
+      };
+
+      log('POST ' + API_URL);
 
       try {
-        const str = JSON.stringify(payload);
-        log('calling tg.sendData, len=' + str.length);
-        tg.sendData(str);
-        log('tg.sendData() returned OK');
-        return true;
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json().catch(() => ({}));
+        log('response status=' + res.status + ' body=' + JSON.stringify(data));
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || ('HTTP ' + res.status));
+        }
+        return data;
       } catch (e) {
-        log('sendData EXCEPTION: ' + e);
-        showAlert('Не удалось отправить данные: ' + e);
-        return false;
+        log('FETCH ERROR: ' + e);
+        throw e;
       }
     }
 
-    // Один аккаунт
+    async function handleSubmit(btn, payload) {
+      btn.disabled = true;
+      btn.textContent = 'Отправка…';
+
+      try {
+        const result = await sendOrder(payload);
+        document.getElementById('sent-title').textContent = 'Заказ принят';
+        document.getElementById('sent-text').innerHTML =
+          'Номер заказа: <b>#' + result.order_id + '</b><br>' +
+          'Аккаунтов: ' + result.accounts_count + '<br><br>' +
+          'Подтверждение также придёт в чат.';
+        showScreen('screen-sent');
+        setTimeout(() => { try { tg.close(); } catch(e) {} }, 3000);
+      } catch (e) {
+        showAlert('Ошибка: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = btn.id === 'btn-single' ? 'Отправить на проверку' : 'Отправить список';
+      }
+    }
+
     document.getElementById('btn-single').addEventListener('click', () => {
       const login = document.getElementById('login').value.trim();
       const password = document.getElementById('password').value;
-
       if (!login || !password) {
         showAlert('Заполни оба поля');
         return;
       }
-
-      const btn = document.getElementById('btn-single');
-      btn.disabled = true;
-      btn.textContent = 'Отправка…';
-
-      const ok = sendToBot({
+      handleSubmit(document.getElementById('btn-single'), {
         type: 'single',
-        login: login,
-        password: password
+        login,
+        password
       });
-
-      if (ok) {
-        showScreen('screen-sent');
-        setTimeout(() => {
-          try { tg.close(); } catch (e) {}
-        }, 2500);
-      } else {
-        btn.disabled = false;
-        btn.textContent = 'Отправить на проверку';
-      }
     });
 
-    // Список
     document.getElementById('btn-list').addEventListener('click', () => {
       const text = document.getElementById('list').value.trim();
-
       if (!text) {
         showAlert('Вставь хотя бы один аккаунт');
         return;
       }
-
-      const btn = document.getElementById('btn-list');
-      btn.disabled = true;
-      btn.textContent = 'Отправка…';
-
-      const ok = sendToBot({
+      handleSubmit(document.getElementById('btn-list'), {
         type: 'list',
-        text: text
+        text
       });
-
-      if (ok) {
-        showScreen('screen-sent');
-        setTimeout(() => {
-          try { tg.close(); } catch (e) {}
-        }, 2500);
-      } else {
-        btn.disabled = false;
-        btn.textContent = 'Отправить список';
-      }
     });
 
     document.getElementById('btn-close').addEventListener('click', () => {
