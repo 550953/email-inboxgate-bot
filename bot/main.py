@@ -1,6 +1,8 @@
 import asyncio
 import logging
+import os
 
+from aiohttp import web
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -15,6 +17,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+async def health_handler(request: web.Request) -> web.Response:
+    return web.Response(text="OK", status=200)
 
 
 async def set_commands(bot: Bot) -> None:
@@ -54,8 +60,23 @@ async def main() -> None:
     await set_commands(bot)
     await set_menu_button(bot)
 
-    logger.info("Bot started (long polling)")
-    await dp.start_polling(bot)
+    # --- мини HTTP-сервер для Render Web Service ---
+    app = web.Application()
+    app.router.add_get("/", health_handler)
+    app.router.add_get("/healthz", health_handler)
+
+    port = int(os.environ.get("PORT", 10000))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logger.info("Health server started on 0.0.0.0:%s", port)
+
+    try:
+        logger.info("Bot started (long polling)")
+        await dp.start_polling(bot)
+    finally:
+        await runner.cleanup()
 
 
 if __name__ == "__main__":
